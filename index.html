@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Arrow Game</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #141e30, #243b55);
+            color: white;
+
+            height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game {
+            width: 420px;
+            max-width: 95%;
+            padding: 30px;
+
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+
+            text-align: center;
+
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            color: #00eaff;
+            margin-bottom: 10px;
+        }
+
+        .info {
+            display: flex;
+            justify-content: space-around;
+
+            font-size: 20px;
+            margin: 20px 0;
+        }
+
+        #arrow {
+            font-size: 100px;
+
+            height: 140px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            color: #00ff88;
+
+            text-shadow: 0 0 20px #00ff88;
+        }
+
+        #message {
+            height: 35px;
+            font-size: 20px;
+            margin: 10px;
+        }
+
+        .buttons {
+            display: grid;
+
+            grid-template-columns: repeat(3, 1fr);
+
+            gap: 10px;
+
+            max-width: 250px;
+
+            margin: auto;
+        }
+
+        .buttons button {
+            height: 65px;
+
+            border: none;
+
+            border-radius: 12px;
+
+            background: #1677ff;
+
+            color: white;
+
+            font-size: 30px;
+
+            cursor: pointer;
+
+            transition: 0.1s;
+        }
+
+        .buttons button:hover {
+            background: #00aaff;
+            transform: scale(1.05);
+        }
+
+        .up {
+            grid-column: 2;
+        }
+
+        .left {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .down {
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .right {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        #startButton {
+            margin-top: 20px;
+
+            padding: 12px 30px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            background: #00c853;
+
+            color: white;
+
+            font-size: 18px;
+
+            cursor: pointer;
+        }
+
+        #startButton:hover {
+            background: #00e676;
+        }
+
+        .game-over {
+            color: #ff5252;
+            font-size: 25px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <h1>🎯 Arrow Game</h1>
+
+    <p>Press the correct arrow!</p>
+
+    <div class="info">
+
+        <div>
+            Score:
+            <span id="score">0</span>
+        </div>
+
+        <div>
+            ❤️ Lives:
+            <span id="lives">3</span>
+        </div>
+
+    </div>
+
+    <div id="arrow">⬆️</div>
+
+    <div id="message">
+        Press START to play
+    </div>
+
+    <div class="buttons">
+
+        <button class="up"
+                onclick="checkAnswer('up')">
+            ↑
+        </button>
+
+        <button class="left"
+                onclick="checkAnswer('left')">
+            ←
+        </button>
+
+        <button class="down"
+                onclick="checkAnswer('down')">
+            ↓
+        </button>
+
+        <button class="right"
+                onclick="checkAnswer('right')">
+            →
+        </button>
+
+    </div>
+
+    <button id="startButton"
+            onclick="startGame()">
+        START GAME
+    </button>
+
+</div>
+
+<script>
+
+    const arrows = {
+        up: "⬆️",
+        down: "⬇️",
+        left: "⬅️",
+        right: "➡️"
+    };
+
+    const keys = [
+        "up",
+        "down",
+        "left",
+        "right"
+    ];
+
+    let currentArrow = "";
+
+    let score = 0;
+
+    let lives = 3;
+
+    let playing = false;
+
+    let timer;
+
+    function startGame() {
+
+        score = 0;
+
+        lives = 3;
+
+        playing = true;
+
+        document.getElementById("score").innerText =
+            score;
+
+        document.getElementById("lives").innerText =
+            lives;
+
+        document.getElementById("message").innerText =
+            "Good luck!";
+
+        document.getElementById("startButton").innerText =
+            "RESTART";
+
+        newArrow();
+    }
+
+    function newArrow() {
+
+        const randomIndex =
+            Math.floor(Math.random() * keys.length);
+
+        currentArrow =
+            keys[randomIndex];
+
+        document.getElementById("arrow").innerText =
+            arrows[currentArrow];
+
+        clearTimeout(timer);
+
+        // Time limit
+        timer = setTimeout(() => {
+
+            if (playing) {
+
+                lives--;
+
+                updateLives();
+
+                document.getElementById("message").innerText =
+                    "⏰ Too slow!";
+
+                if (lives <= 0) {
+
+                    endGame();
+
+                } else {
+
+                    newArrow();
+                }
+            }
+
+        }, 1500);
+    }
+
+    function checkAnswer(answer) {
+
+        if (!playing) {
+            return;
+        }
+
+        clearTimeout(timer);
+
+        if (answer === currentArrow) {
+
+            score++;
+
+            document.getElementById("score").innerText =
+                score;
+
+            document.getElementById("message").innerText =
+                "✅ Correct!";
+
+        } else {
+
+            lives--;
+
+            updateLives();
+
+            document.getElementById("message").innerText =
+                "❌ Wrong!";
+        }
+
+        if (lives <= 0) {
+
+            endGame();
+
+        } else {
+
+            newArrow();
+        }
+    }
+
+    function updateLives() {
+
+        document.getElementById("lives").innerText =
+            lives;
+    }
+
+    function endGame() {
+
+        playing = false;
+
+        clearTimeout(timer);
+
+        document.getElementById("arrow").innerText =
+            "💀";
+
+        document.getElementById("message").innerHTML =
+            `<span class="game-over">
+                GAME OVER
+                <br>
+                Final Score: ${score}
+            </span>`;
+    }
+
+    // Keyboard controls
+    document.addEventListener("keydown", function(event) {
+
+        if (!playing) {
+            return;
+        }
+
+        if (event.key === "ArrowUp") {
+
+            checkAnswer("up");
+
+        } else if (event.key === "ArrowDown") {
+
+            checkAnswer("down");
+
+        } else if (event.key === "ArrowLeft") {
+
+            checkAnswer("left");
+
+        } else if (event.key === "ArrowRight") {
+
+            checkAnswer("right");
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
